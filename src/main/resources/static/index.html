@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusFind – Lost & Found Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --secondary: #0ea5e9;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 32px;
+        }
+
+        .logo-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .logo-title h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--card-bg);
+            padding: 8px 16px;
+            border-radius: 9999px;
+            border: 1px solid var(--card-border);
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .stat-card.yellow::before { background: var(--accent); }
+        .stat-card.blue::before { background: var(--secondary); }
+        .stat-card.green::before { background: var(--success); }
+
+        .stat-title {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 12px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 15px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            background: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .panel h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+        }
+
+        button.btn-primary {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 8px;
+        }
+
+        button.btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 550px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .item-card {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            transition: transform 0.2s;
+        }
+
+        .item-card:hover {
+            border-color: #475569;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .item-title {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .badge {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge.AVAILABLE { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge.CLAIMED { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .badge.RETURNED { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+        .badge.category { background: rgba(14, 165, 233, 0.2); color: #38bdf8; }
+
+        .item-desc {
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 10px;
+        }
+
+        .item-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .item-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-claim { background: #f59e0b; color: #000; }
+        .btn-return { background: #10b981; color: #000; }
+        .btn-match { background: #6366f1; color: #fff; }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        .toast.success { background: var(--success); color: #000; }
+        .toast.error { background: var(--danger); color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-title">
+                <div class="logo-icon">🔍</div>
+                <div>
+                    <h1>CampusFind</h1>
+                    <p style="font-size: 12px; color: var(--text-muted);">Lost & Found Item Tracker for Campus</p>
+                </div>
+            </div>
+            <div class="user-status">
+                <span>Active User: <strong id="current-user-display">Loading...</strong></span>
+                <button class="btn-sm" style="background: #334155; color: #fff;" onclick="switchUserModal()">Switch User</button>
+            </div>
+        </header>
+
+        <!-- Admin Summary Bar -->
+        <div class="stats-grid">
+            <div class="stat-card yellow">
+                <div class="stat-title">Pending Lost Reports</div>
+                <div class="stat-value" id="stat-pending">0</div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-title">Claimed Items</div>
+                <div class="stat-value" id="stat-matched">0</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-title">Returned Items</div>
+                <div class="stat-value" id="stat-returned">0</div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('lost-tab', this)">Lost Reports</button>
+            <button class="tab-btn" onclick="showTab('found-tab', this)">Found Items</button>
+            <button class="tab-btn" onclick="showTab('match-tab', this)">Match Finder</button>
+            <button class="tab-btn" onclick="showTab('admin-tab', this)">Users & Categories</button>
+        </div>
+
+        <!-- Tab 1: Lost Reports -->
+        <div id="lost-tab" class="tab-content active">
+            <div class="grid-2">
+                <div class="panel">
+                    <h2>Report Lost Item</h2>
+                    <form id="lost-form" onsubmit="submitLostReport(event)">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="lost-category" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Location Lost</label>
+                            <input type="text" id="lost-location" placeholder="e.g. Library 2nd Floor, Room 204" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="lost-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="lost-description" rows="3" placeholder="e.g. Black Dell Inspiron laptop with stickers" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary">Submit Lost Report</button>
+                    </form>
+                </div>
+                <div class="panel">
+                    <h2>Recent Lost Reports</h2>
+                    <div id="lost-list" class="card-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Found Items -->
+        <div id="found-tab" class="tab-content">
+            <div class="grid-2">
+                <div class="panel">
+                    <h2>Report Found Item (Staff Only)</h2>
+                    <form id="found-form" onsubmit="submitFoundItem(event)">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="found-category" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Location Found</label>
+                            <input type="text" id="found-location" placeholder="e.g. Cafeteria Table 5" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="found-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="found-description" rows="3" placeholder="e.g. Blue umbrella with wooden handle" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary">Submit Found Item</button>
+                    </form>
+                </div>
+                <div class="panel">
+                    <h2>Found Items Inventory</h2>
+                    <div id="found-list" class="card-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Matching Feature -->
+        <div id="match-tab" class="tab-content">
+            <div class="panel">
+                <h2>Match Lost Reports with Found Items</h2>
+                <div style="display: flex; gap: 12px; margin-bottom: 24px; align-items: flex-end;">
+                    <div style="flex: 1;">
+                        <label>Select a Lost Report</label>
+                        <select id="match-lost-select"></select>
+                    </div>
+                    <button class="btn-primary" style="width: auto; padding: 10px 24px; margin: 0;" onclick="findMatches()">Find Matches</button>
+                </div>
+                <h3 style="font-size: 15px; margin-bottom: 12px; color: var(--text-muted);">Suggested Matches (Based on Category, Location & Description Keywords):</h3>
+                <div id="match-results-list" class="card-list"></div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Admin Management -->
+        <div id="admin-tab" class="tab-content">
+            <div class="grid-2">
+                <div class="panel">
+                    <h2>Add New Category</h2>
+                    <form onsubmit="createCategory(event)">
+                        <div class="form-group">
+                            <label>Category Name</label>
+                            <input type="text" id="new-category-name" placeholder="e.g. Books, Electronics, Wallets" required>
+                        </div>
+                        <button type="submit" class="btn-primary">Add Category</button>
+                    </form>
+                    <div style="margin-top: 24px;">
+                        <label>Existing Categories</label>
+                        <div id="category-chips" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;"></div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <h2>Register New User</h2>
+                    <form onsubmit="registerUser(event)">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="reg-username" placeholder="e.g. john_doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="reg-password" placeholder="••••••••" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Role</label>
+                            <select id="reg-role">
+                                <option value="STUDENT">STUDENT</option>
+                                <option value="STAFF">STAFF</option>
+                                <option value="ADMIN">ADMIN</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary">Register User</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        let currentUser = { id: 1, username: 'student1', role: 'STUDENT' };
+        let categories = [];
+        let lostReports = [];
+
+        document.getElementById('lost-date').valueAsDate = new Date();
+        document.getElementById('found-date').valueAsDate = new Date();
+
+        async function init() {
+            try {
+                // Ensure default data exists
+                await ensureInitialData();
+                await loadDashboardStats();
+                await loadCategories();
+                await loadLostReports();
+                await loadFoundItems();
+                updateUserDisplay();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function ensureInitialData() {
+            try {
+                // Register default users if not registered
+                await fetch('/api/users/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'student_alex', password: '123', role: 'STUDENT' })
+                });
+                await fetch('/api/users/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'staff_smith', password: '123', role: 'STAFF' })
+                });
+                await fetch('/api/users/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin_dean', password: '123', role: 'ADMIN' })
+                });
+
+                // Default categories
+                await fetch('/api/categories', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: 'Electronics' })
+                });
+                await fetch('/api/categories', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: 'Accessories & Bags' })
+                });
+            } catch(e) {}
+        }
+
+        function updateUserDisplay() {
+            document.getElementById('current-user-display').textContent = `${currentUser.username} (${currentUser.role}, ID: ${currentUser.id})`;
+        }
+
+        function switchUserModal() {
+            const role = prompt("Enter role to switch to: STUDENT, STAFF, or ADMIN", currentUser.role);
+            if (!role) return;
+            const rUpper = role.trim().toUpperCase();
+            if (rUpper === 'STAFF') {
+                currentUser = { id: 2, username: 'staff_smith', role: 'STAFF' };
+            } else if (rUpper === 'ADMIN') {
+                currentUser = { id: 3, username: 'admin_dean', role: 'ADMIN' };
+            } else {
+                currentUser = { id: 1, username: 'student_alex', role: 'STUDENT' };
+            }
+            updateUserDisplay();
+            showToast(`Switched active user to ${currentUser.username} (${currentUser.role})`, 'success');
+        }
+
+        function showTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+
+            if (tabId === 'match-tab') populateMatchDropdown();
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3500);
+        }
+
+        async function loadDashboardStats() {
+            const res = await fetch('/api/admin/dashboard');
+            const data = await res.json();
+            document.getElementById('stat-pending').textContent = data.pendingLostReports;
+            document.getElementById('stat-matched').textContent = data.matchedItems;
+            document.getElementById('stat-returned').textContent = data.returnedItems;
+        }
+
+        async function loadCategories() {
+            const res = await fetch('/api/categories');
+            categories = await res.json();
+            
+            const selects = ['lost-category', 'found-category'];
+            selects.forEach(id => {
+                const el = document.getElementById(id);
+                el.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            });
+
+            const chips = document.getElementById('category-chips');
+            chips.innerHTML = categories.map(c => `<span class="badge category">${c.name} (ID: ${c.id})</span>`).join('');
+        }
+
+        async function createCategory(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-category-name').value;
+            const res = await fetch('/api/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showToast(`Category "${data.name}" created!`, 'success');
+                document.getElementById('new-category-name').value = '';
+                await loadCategories();
+            } else {
+                showToast(data.message || 'Error creating category', 'error');
+            }
+        }
+
+        async function registerUser(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+            const role = document.getElementById('reg-role').value;
+
+            const res = await fetch('/api/users/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, role })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showToast(`User ${data.username} registered with role ${data.role}!`, 'success');
+                document.getElementById('reg-username').value = '';
+                document.getElementById('reg-password').value = '';
+            } else {
+                showToast(data.message || 'Error registering user', 'error');
+            }
+        }
+
+        async function loadLostReports() {
+            const res = await fetch('/api/lost-reports');
+            lostReports = await res.json();
+            const list = document.getElementById('lost-list');
+            
+            if (lostReports.length === 0) {
+                list.innerHTML = '<div style="color: var(--text-muted); font-size: 14px;">No lost reports submitted yet.</div>';
+                return;
+            }
+
+            list.innerHTML = lostReports.map(item => `
+                <div class="item-card">
+                    <div class="item-header">
+                        <span class="item-title">Report #${item.id}</span>
+                        <span class="badge category">${item.category.name}</span>
+                    </div>
+                    <div class="item-desc">${item.description}</div>
+                    <div class="item-meta">
+                        <span>📍 ${item.location}</span>
+                        <span>📅 ${item.date}</span>
+                        <span>👤 Reported by: ${item.user.username}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function submitLostReport(e) {
+            e.preventDefault();
+            const payload = {
+                categoryId: parseInt(document.getElementById('lost-category').value),
+                location: document.getElementById('lost-location').value,
+                date: document.getElementById('lost-date').value,
+                description: document.getElementById('lost-description').value,
+                userId: currentUser.id
+            };
+
+            const res = await fetch('/api/lost-reports', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showToast('Lost report submitted successfully!', 'success');
+                document.getElementById('lost-form').reset();
+                document.getElementById('lost-date').valueAsDate = new Date();
+                await loadLostReports();
+                await loadDashboardStats();
+            } else {
+                showToast(data.message || 'Error submitting report', 'error');
+            }
+        }
+
+        async function loadFoundItems() {
+            const res = await fetch('/api/found-items');
+            const items = await res.json();
+            const list = document.getElementById('found-list');
+
+            if (items.length === 0) {
+                list.innerHTML = '<div style="color: var(--text-muted); font-size: 14px;">No found items in inventory.</div>';
+                return;
+            }
+
+            list.innerHTML = items.map(item => `
+                <div class="item-card">
+                    <div class="item-header">
+                        <span class="item-title">Item #${item.id}</span>
+                        <div>
+                            <span class="badge category">${item.category.name}</span>
+                            <span class="badge ${item.status}">${item.status}</span>
+                        </div>
+                    </div>
+                    <div class="item-desc">${item.description}</div>
+                    <div class="item-meta">
+                        <span>📍 ${item.location}</span>
+                        <span>📅 ${item.date}</span>
+                        <span>👤 Found by: ${item.user.username}</span>
+                    </div>
+                    <div class="item-actions">
+                        ${item.status === 'AVAILABLE' ? `
+                            <button class="btn-sm btn-claim" onclick="updateItemStatus(${item.id}, 'CLAIMED')">Mark as CLAIMED</button>
+                        ` : ''}
+                        ${item.status === 'CLAIMED' ? `
+                            <button class="btn-sm btn-return" onclick="updateItemStatus(${item.id}, 'RETURNED')">Mark as RETURNED</button>
+                        ` : ''}
+                        ${item.status === 'AVAILABLE' ? `
+                            <button class="btn-sm" style="background: #334155; color: #94a3b8;" title="Will test Business Rule 1 violation" onclick="updateItemStatus(${item.id}, 'RETURNED')">Direct Return (Test Rule 1)</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function submitFoundItem(e) {
+            e.preventDefault();
+            const payload = {
+                categoryId: parseInt(document.getElementById('found-category').value),
+                location: document.getElementById('found-location').value,
+                date: document.getElementById('found-date').value,
+                description: document.getElementById('found-description').value,
+                userId: currentUser.id
+            };
+
+            const res = await fetch('/api/found-items', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showToast('Found item submitted successfully!', 'success');
+                document.getElementById('found-form').reset();
+                document.getElementById('found-date').valueAsDate = new Date();
+                await loadFoundItems();
+                await loadDashboardStats();
+            } else {
+                showToast(data.message || 'Error creating found item (Check role)', 'error');
+            }
+        }
+
+        async function updateItemStatus(itemId, newStatus) {
+            const res = await fetch(`/api/found-items/${itemId}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: currentUser.id,
+                    status: newStatus
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showToast(`Status updated to ${data.status}!`, 'success');
+                await loadFoundItems();
+                await loadDashboardStats();
+            } else {
+                showToast(`Failed: ${data.message}`, 'error');
+            }
+        }
+
+        function populateMatchDropdown() {
+            const sel = document.getElementById('match-lost-select');
+            if (lostReports.length === 0) {
+                sel.innerHTML = '<option value="">No lost reports found</option>';
+                return;
+            }
+            sel.innerHTML = lostReports.map(r => `<option value="${r.id}">Lost #${r.id} - ${r.description} (${r.location})</option>`).join('');
+        }
+
+        async function findMatches() {
+            const lostId = document.getElementById('match-lost-select').value;
+            if (!lostId) return;
+
+            const res = await fetch(`/api/matching/lost-reports/${lostId}`);
+            const matches = await res.json();
+            const list = document.getElementById('match-results-list');
+
+            if (matches.length === 0) {
+                list.innerHTML = '<div style="color: var(--text-muted); font-size: 14px; padding: 12px; background: rgba(15,23,42,0.5); border-radius: 8px;">No matching available items found for this report.</div>';
+                return;
+            }
+
+            list.innerHTML = matches.map(item => `
+                <div class="item-card" style="border-left: 4px solid var(--secondary);">
+                    <div class="item-header">
+                        <span class="item-title">Match: Found Item #${item.id}</span>
+                        <span class="badge ${item.status}">${item.status}</span>
+                    </div>
+                    <div class="item-desc">${item.description}</div>
+                    <div class="item-meta">
+                        <span>📁 Category: ${item.category.name}</span>
+                        <span>📍 Location: ${item.location}</span>
+                        <span>📅 Date: ${item.date}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
